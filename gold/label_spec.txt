@@ -1,0 +1,227 @@
+0|Python (computer programming)
+1|SQL
+2|JavaScript
+3|TypeScript
+4|NONE
+5|NONE
+6|Java (computer programming)
+7|C++
+8|C#
+9|NONE
+10|NONE
+11|NONE
+12|PHP
+13|NONE
+14|NONE
+15|NONE
+16|NONE
+17|NONE
+18|NONE
+19|NONE
+20|NONE
+21|NONE
+22|NONE
+23|NONE
+24|NONE
+25|Jenkins (tools for software configuration management)
+26|NONE
+27|NONE
+28|utilise machine learning
+29|NONE
+30|natural language processing
+31|NONE
+32|perform data analysis
+33|deliver visual presentation of data
+34|data mining
+35|NONE
+36|NONE
+37|use spreadsheets software
+38|use spreadsheets software
+39|use word processing software
+40|use presentation software
+41|use microsoft office
+42|use spreadsheets software
+43|NONE
+44|NONE
+45|NONE
+46|NONE
+47|PostgreSQL
+48|MySQL
+49|NONE
+50|Hadoop
+51|NONE
+52|data extraction, transformation and loading tools
+53|NONE
+54|statistics
+55|R
+56|MATLAB
+57|NONE
+58|Agile development
+59|NONE
+60|NONE
+61|NONE
+62|project management
+63|NONE
+64|maintain relationships with stakeholders
+65|risk management
+66|apply change management
+67|manage budgets
+68|create a financial report
+69|financial analysis
+70|NONE
+71|NONE
+72|NONE
+73|NONE
+74|manage payroll
+75|NONE
+76|prepare tax returns forms
+77|recruit personnel
+78|NONE
+79|NONE
+80|NONE
+81|NONE
+82|NONE
+83|NONE
+84|NONE
+85|NONE
+86|NONE
+87|forecast sales over periods of time
+88|customer service
+89|customer service
+90|NONE
+91|customer relationship management
+92|market research
+93|search engine optimisation
+94|NONE
+95|content marketing strategy
+96|apply social media marketing
+97|execute email marketing
+98|perform copywriting
+99|NONE
+100|public relations
+101|speak in public
+102|NONE
+103|write work-related reports
+104|NONE
+105|NONE
+106|NONE
+107|create website wireframe
+108|NONE
+109|Adobe Photoshop
+110|Adobe Illustrator
+111|perform video editing
+112|graphic design
+113|photography
+114|3D modelling
+115|create AutoCAD drawings
+116|NONE
+117|NONE
+118|resuscitation
+119|first aid
+120|take blood samples
+121|administer prescribed medication
+122|carry out wound care
+123|medical terminology
+124|triage clients
+125|use electronic health records management
+126|infection control
+127|physiotherapy
+128|NONE
+129|NONE
+130|NONE
+131|perform classroom management
+132|develop curriculum
+133|tutor students
+134|special needs education
+135|NONE
+136|operate forklift
+137|manage inventory
+138|supply chain management
+139|logistics
+140|warehouse operations
+141|pick orders for dispatching
+142|apply procurement
+143|NONE
+144|quality control systems|oversee quality control
+145|quality assurance methodologies|quality assurance procedures
+146|NONE
+147|NONE
+148|NONE
+149|maintain equipment
+150|read standard blueprints
+151|NONE
+152|welding techniques|join metals
+153|soldering techniques
+154|NONE
+155|NONE
+156|NONE
+157|carpentry
+158|NONE
+159|NONE
+160|food safety standards|food safety principles
+161|NONE
+162|NONE
+163|NONE
+164|NONE
+165|merchandising techniques
+166|NONE
+167|NONE
+168|NONE
+169|NONE
+170|legal research
+171|NONE
+172|NONE
+173|NONE
+174|cyber security
+175|NONE
+176|NONE
+177|NONE
+178|troubleshoot
+179|NONE
+180|NONE
+181|embedded systems
+182|communication
+183|NONE
+184|NONE
+185|work in teams|teamwork principles
+186|work in teams
+187|provide leadership|leadership principles
+188|provide leadership
+189|NONE
+190|provide mentorship
+191|NONE
+192|develop strategy to solve problems
+193|NONE
+194|NONE
+195|manage time
+196|NONE
+197|attention to detail|attend to detail
+198|NONE
+199|NONE
+200|NONE
+201|conflict management
+202|NONE
+203|perform multiple tasks at the same time
+204|NONE
+205|NONE
+206|German
+207|English
+208|Spanish
+209|French
+210|NONE
+211|translate texts
+212|Python (computer programming)
+213|JavaScript
+214|communication
+215|use spreadsheets software
+216|use word processing software
+217|JavaScript
+218|NONE
+219|NONE
+220|NONE
+221|utilise machine learning
+222|natural language processing
+223|SQL Server
+224|work in teams|work as a team
+225|develop strategy to solve problems
+226|customer service

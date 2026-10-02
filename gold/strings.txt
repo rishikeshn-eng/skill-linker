@@ -1,0 +1,227 @@
+Python
+SQL
+JavaScript
+TypeScript
+React
+Node.js
+Java
+C++
+C#
+Go
+Rust
+Svelte
+PHP
+Ruby on Rails
+AWS
+Azure
+Google Cloud Platform
+Docker
+Kubernetes
+Terraform
+Git
+Linux
+REST APIs
+GraphQL
+CI/CD
+Jenkins
+TensorFlow
+PyTorch
+Machine learning
+Deep learning
+Natural language processing
+Computer vision
+Data analysis
+Data visualization
+Data mining
+Tableau
+Power BI
+Microsoft Excel
+MS Excel
+Microsoft Word
+Microsoft PowerPoint
+Microsoft Office
+Google Sheets
+SAP
+Salesforce
+HubSpot
+Oracle
+PostgreSQL
+MySQL
+MongoDB
+Hadoop
+Spark
+ETL
+A/B testing
+Statistics
+R programming
+MATLAB
+SPSS
+Agile methodologies
+Scrum
+Kanban
+Jira
+Project management
+Program management
+Stakeholder management
+Risk management
+Change management
+Budgeting
+Financial reporting
+Financial analysis
+Forecasting
+Bookkeeping
+Accounts payable
+Accounts receivable
+Payroll
+Auditing
+Tax preparation
+Recruiting
+Talent acquisition
+Onboarding
+Employee relations
+Performance management
+Negotiation
+B2B sales
+Cold calling
+Lead generation
+Account management
+Sales forecasting
+Customer service
+Customer support
+Customer success
+CRM
+Market research
+SEO
+SEM
+Content marketing
+Social media marketing
+Email marketing
+Copywriting
+Brand management
+Public relations
+Public speaking
+Technical writing
+Report writing
+Editing and proofreading
+UX design
+UI design
+Wireframing
+Figma
+Adobe Photoshop
+Adobe Illustrator
+Video editing
+Graphic design
+Photography
+3D modeling
+AutoCAD
+SolidWorks
+Patient care
+CPR
+First aid
+Phlebotomy
+Medication administration
+Wound care
+Medical terminology
+Triage
+Electronic health records
+Infection control
+Physical therapy
+Mental health counseling
+Pharmacy
+Lesson planning
+Classroom management
+Curriculum development
+Tutoring
+Special education
+Early childhood education
+Forklift operation
+Inventory management
+Supply chain management
+Logistics
+Warehouse operations
+Order picking
+Procurement
+Vendor management
+Quality control
+Quality assurance
+Lean manufacturing
+Six Sigma
+Preventive maintenance
+Equipment maintenance
+Blueprint reading
+CNC machining
+Welding
+Soldering
+HVAC
+Electrical wiring
+Plumbing
+Carpentry
+Heavy equipment operation
+Truck driving
+Food safety
+Food preparation
+Customer relationship building
+Cash handling
+Point of sale systems
+Merchandising
+Cleaning
+Housekeeping
+Security patrol
+Emergency response
+Legal research
+Contract drafting
+Compliance
+GDPR
+Cybersecurity
+Penetration testing
+Network administration
+Technical support
+Troubleshooting
+System administration
+Database administration
+Embedded systems
+Communication
+Written communication
+Verbal communication
+Teamwork
+Collaboration
+Leadership
+Team leadership
+People management
+Mentoring
+Coaching
+Problem solving
+Critical thinking
+Analytical skills
+Time management
+Organizational skills
+Attention to detail
+Adaptability
+Creativity
+Decision making
+Conflict resolution
+Presentation skills
+Multitasking
+Interpersonal skills
+Work ethic
+German
+English
+Spanish
+French
+Mandarin
+Translation
+pyton
+javascipt
+comunication
+excell
+ms word
+js
+k8s
+golang
+node
+ML
+NLP
+SQL Server
+team work
+problemsolving
+cust service

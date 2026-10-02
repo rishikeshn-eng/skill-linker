@@ -1,0 +1,63 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Skill Linker</title>
+<style>
+:root{--bg:#fafaf7;--fg:#1c1c1a;--mut:#6b6b66;--card:#fff;--bd:#e3e2dc;--ac:#2a6f6b;--warn:#c2410c;--bar:#9db8b5}
+@media(prefers-color-scheme:dark){:root{--bg:#161614;--fg:#ecebe6;--mut:#9a9992;--card:#1f1f1c;--bd:#33332f;--ac:#6cc2bc;--warn:#fb923c;--bar:#3d5a57}}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--fg);font:15px/1.5 system-ui,sans-serif}
+main{max-width:1000px;margin:0 auto;padding:24px 16px 64px}h1{font-size:22px;margin:0 0 4px}h2{font-size:16px;margin:28px 0 8px}
+.sub{color:var(--mut);margin:0 0 16px}.card{background:var(--card);border:1px solid var(--bd);border-radius:10px;padding:14px 16px}
+.banner{background:var(--warn);color:#fff;border-radius:8px;padding:8px 12px;margin-bottom:14px;font-size:13.5px}
+table{border-collapse:collapse;width:100%;font-size:13px}th,td{text-align:right;padding:5px 8px;border-bottom:1px solid var(--bd)}th:first-child,td:first-child{text-align:left}th{color:var(--mut)}
+.kp{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px}.kp b{display:block;font-size:20px}.kp span{color:var(--mut);font-size:12.5px}
+input{font:inherit;padding:7px 10px;width:100%;background:var(--bg);color:var(--fg);border:1px solid var(--bd);border-radius:8px}
+.bar{display:inline-block;height:9px;background:var(--bar);border-radius:2px;vertical-align:middle}.note{font-size:12.5px;color:var(--mut)}
+.tag{border:1px solid var(--bd);border-radius:99px;padding:0 8px;font-size:11.5px}.up{color:var(--ac)}.down{color:var(--warn)}a{color:var(--ac)}
+@media(max-width:600px){.hide-s{display:none}}
+</style></head><body><main>
+<h1>Skill Linker</h1>
+<p class="sub">Map free-text job skills to <a href="https://esco.ec.europa.eu">ESCO</a>, the EU skills taxonomy, and publish a skill demand index.</p>
+<div class="banner" id="banner"></div>
+<div class="card"><div class="kp" id="kp"></div></div>
+<h2>Try the linker <span class="note">approximate in-browser version (exact match, then character-trigram similarity)</span></h2>
+<div class="card"><input id="q" placeholder="Type a skill as it appears in a job ad: 'MS Excel', 'pyton', 'customer service'…" autocomplete="off"><div id="qo"></div></div>
+<h2>Accuracy on the labelled set</h2>
+<div class="card"><div class="kp" id="ek"></div><table id="sw"></table><p class="note" id="en"></p><div id="errs"></div></div>
+<h2>Skill demand index <span class="note" id="dn"></span></h2>
+<div class="card"><table id="dt"></table><p class="note" id="dnote"></p></div>
+<h2>Label more <span class="note">to get your own accuracy number</span></h2>
+<div class="card"><p>The accuracy above comes from a small set labelled by a single annotator (an LLM), not from humans. <a href="label.html">Open the labelling tool</a>, label as many strings as you like (keyboard-driven, saved in your browser), and it reports the linker's accuracy against <i>your</i> labels and exports them as CSV.</p></div>
+</main>
+<script>
+const $=id=>document.getElementById(id),pc=x=>(x*100).toFixed(1)+'%',esc=s=>String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;');
+const jf=u=>fetch(u,{cache:'no-store'}).then(r=>{if(!r.ok)throw new Error(u);return r.json();});
+function stem(w){if(!/^[a-z]+$/.test(w))return w;if(w.length>4&&w.endsWith('ies'))return w.slice(0,-3)+'y';if(w.length>3&&w.endsWith('s')&&!/(ss|us|is)$/.test(w))return w.slice(0,-1);return w;}
+function norm(t,dp){t=t.normalize('NFKD').replace(/[^\x00-\x7f]/g,'').toLowerCase();if(dp)t=t.replace(/\s*\([^)]*\)/g,'');t=t.replace(/&/g,' and ').replace(/[\/-]/g,' ').replace(/[^a-z0-9+#.\s]/g,' ');return t.split(/\s+/).map(w=>w.replace(/\.+$/,'')).filter(w=>w&&w!=='.').map(stem).join(' ');}
+function grams(s){const g=new Set();for(const w of s.split(' ')){const p=' '+w+' ';for(let n=2;n<=4;n++)for(let i=0;i+n<=p.length;i++)g.add(p.slice(i,i+n));}return g;}
+let ESCO=null,EX=new Map(),LAB=[],INV=new Map();
+async function loadEsco(){const sk=await jf('esco_skills.json');ESCO=sk;
+ sk.forEach((s,si)=>{[[s.p,1],...s.a.map(a=>[a,0])].forEach(([l,p])=>{for(const v of new Set([norm(l),norm(l,1)])){if(!v)continue;if(!EX.has(v))EX.set(v,[]);EX.get(v).push([si,p]);const gs=grams(v),id=LAB.length;LAB.push({si,p,n:gs.size});for(const g of gs){if(!INV.has(g))INV.set(g,[]);INV.get(g).push(id);}}});});}
+function link(text){const n=norm(text);if(!n)return[];const hit=EX.get(n);const out=[];
+ if(hit){const h=hit.slice().sort((a,b)=>b[1]-a[1]||a[0]-b[0])[0];out.push({si:h[0],score:1,m:'exact'});}
+ const q=grams(n),cnt=new Map();for(const g of q){const l=INV.get(g);if(l)for(const id of l)cnt.set(id,(cnt.get(id)||0)+1);}
+ const sc=[];for(const [id,c] of cnt){const L=LAB[id];sc.push([L.si,c/Math.sqrt(q.size*L.n)+0.02*L.p]);}
+ sc.sort((a,b)=>b[1]-a[1]);const seen=new Set(out.map(o=>o.si));
+ for(const [si,s] of sc){if(seen.has(si))continue;seen.add(si);out.push({si,score:Math.min(s,1),m:'fuzzy'});if(out.length>=5)break;}return out;}
+let tmr;$('q').oninput=()=>{clearTimeout(tmr);tmr=setTimeout(async()=>{const t=$('q').value;if(!t.trim()){$('qo').innerHTML='';return;}
+ if(!ESCO){$('qo').textContent='Loading ESCO index…';await loadEsco();}
+ const r=link(t);if(!r.length){$('qo').innerHTML='<p class="note">No candidates.</p>';return;}
+ const top=r[0],ok=top.m==='exact'||top.score>=0.5;
+ $('qo').innerHTML=`<p>${ok?`<b>${esc(ESCO[top.si].p)}</b> <span class="tag">${top.m}, ${top.score.toFixed(2)}</span>`:`<span class="down">No confident match</span> (best ${top.score.toFixed(2)}); the full linker abstains below its threshold`}</p><p class="note">Other candidates: ${r.slice(1).map(x=>esc(ESCO[x.si].p)+' ('+x.score.toFixed(2)+')').join(' · ')}</p>`;},150);};
+(async()=>{let R;try{R=await jf('results.json');}catch(e){$('banner').textContent='results.json missing';return;}
+ const P=R.postings;$('banner').textContent=`ESCO subset: ${R.esco.skills.toLocaleString()} English skills harvested from ESCO's public API (not the full ~14k classification). Demand index: ${P?P.english+' English postings from Arbeitnow, '+P.date_from+' to '+P.date_to:'no postings loaded'}, a small, Europe-skewed sample.`;
+ const E=R.eval;$('kp').innerHTML=[[R.esco.skills.toLocaleString(),'ESCO skills indexed'],[E?E.n:'–','labelled strings (single annotator)'],[E?pc(E.top1_accuracy_on_linkable):'–','top-1 accuracy on linkable strings'],[P?P.english:'–','English postings analysed']].map(([a,l])=>`<div><b>${a}</b><span>${l}</span></div>`).join('');
+ if(E){$('ek').innerHTML=[[pc(E.top1_accuracy_on_linkable),'top-1 (of '+E.n_linkable+' linkable)'],[pc(E.top5_recall_on_linkable),'top-5 recall'],[pc(E.exact_precision),'precision of exact matches'],[pc(E.correct_abstain_on_none),'correct abstain on '+E.n_none+' not-in-ESCO strings']].map(([a,l])=>`<div><b>${a}</b><span>${l}</span></div>`).join('');
+  $('ek').className='kp';
+  $('sw').innerHTML='<tr><th>Answer only if score ≥</th><th>Coverage</th><th>Precision of answers</th><th class="hide-s">Abstains correctly on not-in-ESCO</th></tr>'+E.sweep.map(s=>`<tr><td>${s.threshold}</td><td>${pc(s.coverage)}</td><td>${pc(s.precision)}</td><td class="hide-s">${pc(s.correct_abstain_on_none)}</td></tr>`).join('');
+  const T=R.tuning&&R.tuning.test;$('en').innerHTML=`n=${E.n}. Operating point: score ≥ ${R.threshold}, chosen on a ${R.tuning?R.tuning.dev_n:'–'}-string dev half; on the held-out ${T?T.n:'–'}-string half, end-to-end accuracy is ${T?pc(T.end_to_end_accuracy):'–'} (top-1 on linkable ${T?pc(T.top1_accuracy_on_linkable):'–'}, correct abstention ${T?pc(T.correct_abstain_on_none):'–'}); the headline numbers above use all ${E.n}. Exact hits always answer. Labels were assigned by one LLM annotator reading candidates from this linker <i>and</i> from ESCO's own search API, so they are not human-verified and may anchor on the linker's suggestions. Treat the numbers as a smoke test; the labelling tool is for getting a real one.`;
+  $('errs').innerHTML='<p class="note">Sample of top-1 errors:</p><p class="note">'+E.errors.slice(0,12).map(e=>`<b>${esc(e.text)}</b> → ${esc(e.pred_label||'(abstained)')} [${e.method} ${e.score}]`).join(' · ')+'</p>';}
+ if(R.demand){const D=R.demand,mx=Math.max(...D.skills.map(s=>s.share));$('dn').textContent=`${D.n_postings} English postings; each skill counted once per posting`;
+  $('dt').innerHTML='<tr><th>ESCO skill</th><th>Postings</th><th>Share (95% CI)</th><th class="hide-s"></th><th>Trend*</th></tr>'+D.skills.slice(0,40).map(s=>`<tr><td>${esc(s.label)}</td><td>${s.postings}</td><td>${pc(s.share)} <span class="note">(${pc(s.ci[0])}–${pc(s.ci[1])})</span></td><td class="hide-s"><span class="bar" style="width:${s.share/mx*140}px"></span></td><td class="${s.trend==='rising'?'up':s.trend==='falling'?'down':''}">${s.trend}</td></tr>`).join('');
+  const ep=R.extraction_precision;$('dnote').innerHTML=`*Trend compares the earlier and later half of the sample window; "rising" means the later half's Wilson interval sits wholly above the earlier half's. ${P.with_any_skill} of ${P.english} postings matched at least one skill (mean ${P.mean_skills_per_posting.toFixed(1)} per posting). Skills are found by longest-match against ESCO labels in the description text; one-word generic labels are excluded. `+(ep?`In a manual review of ${ep.n} extracted spans, ${pc(ep.precision)} were correct skill mentions (one reviewer).`:'Extraction precision has not been reviewed.')+' This is a small sample from one board and says nothing about the wider market.';}
+})();
+</script></body></html>

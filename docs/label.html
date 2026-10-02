@@ -1,0 +1,41 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Skill Labelling Tool</title>
+<style>
+:root{--bg:#fafaf7;--fg:#1c1c1a;--mut:#6b6b66;--card:#fff;--bd:#e3e2dc;--ac:#2a6f6b;--warn:#c2410c}
+@media(prefers-color-scheme:dark){:root{--bg:#161614;--fg:#ecebe6;--mut:#9a9992;--card:#1f1f1c;--bd:#33332f;--ac:#6cc2bc;--warn:#fb923c}}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--fg);font:15px/1.5 system-ui,sans-serif}
+main{max-width:760px;margin:0 auto;padding:24px 16px 64px}h1{font-size:22px;margin:0 0 4px}.sub{color:var(--mut);margin:0 0 16px}
+.card{background:var(--card);border:1px solid var(--bd);border-radius:10px;padding:14px 16px;margin-bottom:12px}
+.s{font-size:26px;font-weight:600;margin:4px 0 12px}button{font:inherit;display:block;width:100%;text-align:left;padding:8px 10px;margin:4px 0;background:var(--bg);color:var(--fg);border:1px solid var(--bd);border-radius:8px;cursor:pointer}
+button:hover{border-color:var(--ac)}kbd{border:1px solid var(--bd);border-radius:4px;padding:0 5px;font-size:12px;margin-right:8px}.d{font-size:12px;color:var(--mut)}
+.row{display:flex;gap:8px;flex-wrap:wrap}.row button{width:auto}.note{font-size:12.5px;color:var(--mut)}b.ok{color:var(--ac)}
+</style></head><body><main>
+<h1>Skill Labelling Tool</h1>
+<p class="sub">Pick the ESCO skill that means the same as the job-ad string. Press <kbd>1</kbd>–<kbd>8</kbd> to pick, <kbd>0</kbd> for "not in ESCO", <kbd>s</kbd> to skip, <kbd>u</kbd> to undo. Labels are saved in this browser only.</p>
+<div class="card" id="stats"></div>
+<div class="card" id="cur"></div>
+<div class="row"><button id="exp" style="width:auto">Export labels CSV</button><button id="rst" style="width:auto">Reset</button></div>
+<p class="note">A candidate is an <i>equivalent</i> only if it means the same thing: a broader or narrower skill is "not in ESCO" (0). Candidates are listed best-first by the linker's score, so option 1 is its pick: try not to anchor on it, and use 0 freely.</p>
+</main>
+<script>
+const $=id=>document.getElementById(id),esc=s=>String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;');
+let POOL=[],L={},ORDER=[],K='skilllink_labels_v1';
+try{L=JSON.parse(localStorage.getItem(K)||'{}');}catch(e){}
+const save=()=>{try{localStorage.setItem(K,JSON.stringify(L));}catch(e){}};
+function cur(){return ORDER.find(i=>!(POOL[i].text in L));}
+let hist=[];
+function render(){const done=Object.entries(L).filter(([k,v])=>v!=='skip'),lab=done.length;
+ let top1=0,lk=0,nn=0,nok=0;for(const [t,u] of done){const p=POOL.find(x=>x.text===t);if(!p)continue;if(u==='NONE'){nn++;if(!p.pick)nok++;}else{lk++;if(p.pick===u)top1++;}}
+ $('stats').innerHTML=`<b>${lab}</b> labelled of ${POOL.length}. Linker top-1 on your linkable labels: <b class="ok">${lk?(top1/lk*100).toFixed(1)+'%':'–'}</b> (${top1}/${lk}). Correct abstentions on your "not in ESCO": <b class="ok">${nn?(nok/nn*100).toFixed(0)+'%':'–'}</b> (${nok}/${nn}).`;
+ const i=cur();if(i===undefined){$('cur').innerHTML='<b>All done.</b> Export your labels below.';return;}
+ const p=POOL[i];$('cur').innerHTML=`<div class="note">${Object.keys(L).length+1} / ${POOL.length}</div><div class="s">${esc(p.text)}</div>`+p.cands.map((c,j)=>`<button data-u="${c.uri}"><kbd>${j+1}</kbd>${esc(c.label)}<div class="d">${esc(c.desc||'')}</div></button>`).join('')+`<button data-u="NONE"><kbd>0</kbd>None of these (not in ESCO)</button><button data-u="skip"><kbd>s</kbd>Skip</button>`;
+ document.querySelectorAll('#cur button').forEach(b=>b.onclick=()=>pick(b.dataset.u));}
+function pick(u){const i=cur();if(i===undefined)return;L[POOL[i].text]=u;hist.push(POOL[i].text);save();render();}
+document.onkeydown=e=>{if(e.key==='u'){const t=hist.pop();if(t){delete L[t];save();render();}return;}const i=cur();if(i===undefined)return;
+ if(e.key==='0')pick('NONE');else if(e.key==='s')pick('skip');else if(/^[1-8]$/.test(e.key)){const c=POOL[i].cands[+e.key-1];if(c)pick(c.uri);}};
+$('exp').onclick=()=>{const rows=['text,uri,note'];for(const [t,u] of Object.entries(L))if(u!=='skip')rows.push(`"${t.replace(/"/g,'""')}",${u},human`);
+ const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([rows.join('\n')+'\n'],{type:'text/csv'}));a.download='skill_labels.csv';a.click();};
+$('rst').onclick=()=>{if(confirm('Delete all saved labels?')){L={};hist=[];save();render();}};
+fetch('label_pool.json').then(r=>r.json()).then(p=>{POOL=p;ORDER=[...p.keys()].sort(()=>Math.random()-0.5);render();}).catch(()=>{$('cur').textContent='label_pool.json missing';});
+</script></body></html>
