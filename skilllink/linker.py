@@ -21,6 +21,27 @@ from .esco import Index
 from .normalize import normalize
 
 
+
+def _post_json(url: str, key: str, body: dict, tries: int = 5) -> dict:
+    """POST with exponential backoff on 429/5xx/network errors (Gemini rate-limits free keys)."""
+    import time
+    import urllib.error
+    data = json.dumps(body).encode()
+    for i in range(tries):
+        req = urllib.request.Request(url, data=data, method="POST",
+                                     headers={"Content-Type": "application/json", "x-goog-api-key": key})
+        try:
+            with urllib.request.urlopen(req, timeout=90) as r:
+                return json.load(r)
+        except urllib.error.HTTPError as e:
+            if e.code not in (429, 500, 502, 503, 504) or i == tries - 1:
+                raise
+        except (urllib.error.URLError, TimeoutError):
+            if i == tries - 1:
+                raise
+        time.sleep(min(60, 2 ** (i + 1)))
+
+
 @dataclass
 class Link:
     text: str
@@ -82,6 +103,8 @@ class Linker:
         top_uri, top = cands[0] if cands else (None, 0.0)
         if self.llm and cands and self.llm_band[0] <= top < self.llm_band[1]:
             pick = self.llm.choose(text, [(u, self.ix.pref(u)) for u, _ in cands[:6]])
+            if pick == NONE_PICK:
+                return Link(text, None, None, top, "llm", cands)       # LLM judged: not in ESCO
             if pick is not None:
                 return Link(text, pick, self.ix.pref(pick), top, "llm", cands)
         if " " not in norm and len(norm) >= 4 and top < self.threshold:
@@ -95,6 +118,9 @@ class Linker:
         if top >= self.threshold:
             return Link(text, top_uri, self.ix.pref(top_uri), top, "fuzzy", cands)
         return Link(text, None, None, top, "none", cands)
+
+
+NONE_PICK = "__none__"   # the model said no candidate is equivalent (distinct from an invalid/failed reply, which is None)
 
 
 class GeminiRerank:
@@ -113,11 +139,7 @@ class GeminiRerank:
         self.calls = self.rejected = 0
 
     def _http(self, body):
-        url = f"https://generativelanguage.googleapis.com/v1beta/models/{self.model}:generateContent"
-        req = urllib.request.Request(url, data=json.dumps(body).encode(), method="POST",
-                                     headers={"Content-Type": "application/json", "x-goog-api-key": self.key})
-        with urllib.request.urlopen(req, timeout=60) as r:
-            return json.load(r)
+        return _post_json(f"https://generativelanguage.googleapis.com/v1beta/models/{self.model}:generateContent", self.key, body)
 
     def choose(self, text: str, cands: list[tuple[str, str]]) -> str | None:
         prompt = self.PROMPT.format(text=text, cands="\n".join(f"{i + 1}. {lab}" for i, (_, lab) in enumerate(cands)))
@@ -127,7 +149,7 @@ class GeminiRerank:
         try:
             c = json.loads(resp["candidates"][0]["content"]["parts"][0]["text"])["choice"]
             if c is None:
-                return None
+                return NONE_PICK
             c = int(c)
             assert 1 <= c <= len(cands)
             return cands[c - 1][0]

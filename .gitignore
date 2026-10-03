@@ -3,3 +3,4 @@ __pycache__/
 *.pyc
 data/postings_arbeitnow.json.gz
 data/extraction_sample.csv
+runs/

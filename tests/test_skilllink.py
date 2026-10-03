@@ -52,7 +52,7 @@ def test_gemini_rerank_validates_choice(lk):
         return lambda body: {"candidates": [{"content": {"parts": [{"text": json.dumps({"choice": choice})}]}}]}
     g = linker.GeminiRerank(transport=fake(1))
     assert g.choose("x", [("u/a", "A"), ("u/b", "B")]) == "u/a"
-    assert linker.GeminiRerank(transport=fake(None)).choose("x", [("u/a", "A")]) is None
+    assert linker.GeminiRerank(transport=fake(None)).choose("x", [("u/a", "A")]) == linker.NONE_PICK
     bad = linker.GeminiRerank(transport=fake(9))
     assert bad.choose("x", [("u/a", "A")]) is None and bad.rejected == 1
     lk2 = linker.Linker(esco.Index(FIXTURE), threshold=0.99, llm=linker.GeminiRerank(transport=fake(1)), llm_band=(0.1, 0.99))
@@ -87,3 +87,11 @@ def test_wilson_and_demand_trend():
     tr = {s["uri"]: s["trend"] for s in d["skills"]}
     assert tr == {"a": "rising", "b": "falling"}
     assert demand.demand_index([{"t": 1, "skills": ["a", "a"]}], min_count=1)["skills"][0]["postings"] == 1
+
+
+def test_llm_none_answer_makes_the_linker_abstain():
+    def say_none(body):
+        return {"candidates": [{"content": {"parts": [{"text": json.dumps({"choice": None})}]}}]}
+    lk3 = linker.Linker(esco.Index(FIXTURE), threshold=0.1, llm=linker.GeminiRerank(transport=say_none), llm_band=(0.1, 0.99))
+    l = lk3.link("pyton")
+    assert l.uri is None and l.method == "llm"
